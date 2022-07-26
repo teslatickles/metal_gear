@@ -199,9 +199,3 @@ func BenchmarkGetMultiToothCount(b *testing.B) {
 		gl.GetMultiToothCount()
 	}
 }
-
-func Assert(t *testing.T, expected float64, got float64) {
-	if expected != got {
-		t.Errorf("expected %v but got %v", expected, got)
-	}
-}
