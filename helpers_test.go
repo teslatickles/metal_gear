@@ -16,9 +16,7 @@ func TestMakeGear(t *testing.T) {
 		RefDiameter: 15,
 		ToothCount:  0,
 	}
-	if want != got {
-		t.Errorf("expected %v but got %v", want, got)
-	}
+	Assert(t, want, got)
 }
 
 func BenchmarkMakeGear(b *testing.B) {
