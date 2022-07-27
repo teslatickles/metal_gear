@@ -6,17 +6,23 @@ import (
 )
 
 func TestMakeGear(t *testing.T) {
+	// positive case
 	got, err := MakeGear(0.15, 15.0)
 	if err != nil {
 		t.Errorf("error making gear with MakeGear: %v", err)
 	}
-
 	want := Gear{
 		Module:      0.15,
 		RefDiameter: 15,
 		ToothCount:  0,
 	}
 	Assert(t, want, got)
+
+	// negative case -- mod == 0
+	badgear, err := MakeGear(0, 1.5)
+	wantgear := Gear{}
+	Assert(t, wantgear, badgear)
+	Assert(t, err, nil)
 }
 
 func BenchmarkMakeGear(b *testing.B) {
@@ -113,6 +119,12 @@ func TestSetArgsToGears(t *testing.T) {
 		}
 	}
 
+	badargs := []string{"0.1"}
+	badresult, err := SetArgsToGears(badargs)
+	if badresult != nil {
+		t.Errorf("badresult should have been nil but was: %v", badresult)
+	}
+	Assert(t, err, nil)
 }
 
 func BenchmarkSetArgsToGears(b *testing.B) {
@@ -130,7 +142,7 @@ func BenchmarkSetArgsToGears(b *testing.B) {
 }
 
 func TestToFloat(t *testing.T) {
-	var got []float64
+	got := make([]float64, 0, 4)
 	var members []interface{} = []interface{}{"666", 84567, 3.14, nil}
 	for _, m := range members {
 		fm, err := ToFloat(m)
@@ -146,6 +158,14 @@ func TestToFloat(t *testing.T) {
 			t.Errorf("Wanted %v but got %v", want, got)
 		}
 	}
+
+	// negative case
+	var badmembers []interface{} = []interface{}{"66-!6", "+_xx"}
+	for _, b := range badmembers {
+		bm, err := ToFloat(b)
+		Assert(t, err, nil)
+		Assert(t, 0.0, bm)
+	}
 }
 
 func BenchmarkToFloat(b *testing.B) {
@@ -153,6 +173,29 @@ func BenchmarkToFloat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, e := range members {
 			ToFloat(e)
+		}
+	}
+}
+
+// this test helper function should be in a separate file
+// when it is, it is included in coverage, which I don't want
+func Assert(t *testing.T, want interface{}, got interface{}) {
+	switch w := want.(type) {
+	case Gear:
+		if !reflect.DeepEqual(w, got) {
+			t.Errorf("expected %v but got %v", w, got)
+		}
+	case error:
+		if w == nil {
+			t.Errorf("expected error (%v) to not be nil", w)
+		}
+	case nil:
+		if got != nil {
+			t.Errorf("expected nil but got %v", got)
+		}
+	default:
+		if want != got {
+			t.Errorf("expected %v but got %v", w, got)
 		}
 	}
 }

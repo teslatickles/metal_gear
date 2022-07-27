@@ -77,6 +77,7 @@ func BenchmarkValidateGear(b *testing.B) {
 }
 
 func TestCountTeeth(t *testing.T) {
+	// positiv case
 	g := Gear{
 		Module:      0.1,
 		RefDiameter: 10,
@@ -89,6 +90,16 @@ func TestCountTeeth(t *testing.T) {
 		t.Errorf("error %v occurred while attempting CountTeeth on Gear: %v", err, g)
 	}
 	Assert(t, float64(expected), float64(got))
+
+	// negative case
+	bg := Gear{
+		Module:      0,
+		RefDiameter: 21,
+		ToothCount:  0,
+	}
+	badgot, e := bg.CountTeeth()
+	Assert(t, e, nil)
+	Assert(t, badgot, 0)
 }
 
 func BenchmarkCountTeeth(b *testing.B) {
@@ -114,6 +125,16 @@ func TestGetRefPitch(t *testing.T) {
 		t.Errorf("error %v occurred while attempting GetRefPitch on Gear: %v", err, g)
 	}
 	Assert(t, expected, got)
+
+	// negative case
+	bg := Gear{
+		Module:      0,
+		RefDiameter: 40,
+		ToothCount:  0,
+	}
+	b, e := bg.GetRefPitch()
+	Assert(t, e, nil)
+	Assert(t, 0.0, b)
 }
 
 func BenchmarkRefPitch(b *testing.B) {
@@ -140,10 +161,19 @@ func TestGetRefDiameter(t *testing.T) {
 	expected := g.Module * float64(te)
 
 	got, err := g.GetRefDiameter()
-	if err != nil {
-		panic(err)
-	}
+	Assert(t, nil, err)
 	Assert(t, expected, got)
+
+	// negative case
+	bg := Gear{
+		Module:      0,
+		RefDiameter: 40,
+		ToothCount:  0,
+	}
+	b, e := bg.GetRefDiameter()
+	Assert(t, e, nil)
+	Assert(t, 0.0, b)
+
 }
 
 func BenchmarkRefDiameter(b *testing.B) {
@@ -170,12 +200,27 @@ func TestGetMultiToothCount(t *testing.T) {
 	}
 	gl := Gears{g1, g2}
 	gtc, err := gl.GetMultiToothCount()
-	if err != nil {
-		t.Errorf("Error getting tooth count on multiple gears: %v", err)
-	}
 
+	Assert(t, nil, err)
 	Assert(t, gl[0].RefDiameter/g1.Module, float64(gtc[0].ToothCount))
 	Assert(t, gl[1].RefDiameter/g2.Module, float64(gtc[1].ToothCount))
+
+	// negative case
+	bg1 := Gear{
+		Module:      0,
+		RefDiameter: 10,
+		ToothCount:  0,
+	}
+	bg2 := Gear{
+		Module:      0.1,
+		RefDiameter: 0,
+		ToothCount:  0,
+	}
+	bgl := Gears{bg1, bg2}
+	_, berr := bgl.GetMultiToothCount()
+	// bwant := make([]Gear, 0)
+	Assert(t, berr, nil)
+	// Assert(t, bwant, bgtc)
 }
 
 func BenchmarkGetMultiToothCount(b *testing.B) {
