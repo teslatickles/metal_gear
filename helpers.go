@@ -22,7 +22,7 @@ func MakeGear(mod float64, rd float64) (Gear, error) {
 
 func SetArgsToGears(args []string) (Gears, error) {
 	var mod float64
-	var gl Gears
+	gl := make([]Gear, 0, len(args)-1)
 
 	if len(args) < 2 {
 		return nil, errors.New(Red + "must pass at least two args: [0]: Module, [1n]: Reference Diameters (space-delimited)")
@@ -53,8 +53,9 @@ func SetArgsToGears(args []string) (Gears, error) {
 }
 
 func PrintGears(gl Gears) {
+	fmt.Println("\n🤖 results:")
 	for _, g := range gl {
-		fmt.Printf(Green+"⚙️  %+v\n", g)
+		fmt.Printf(Green+"\t⚙️  %+v\n", g)
 	}
 }
 
